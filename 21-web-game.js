@@ -12,27 +12,43 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    const drawCards = async(id) => {
+    const drawCards = async(id, hand) => {
         try {
             let drawData = await axios.get(`https://deckofcardsapi.com/api/deck/${id}/draw/?count=2`);
-            let playerHand = document.querySelector("#playerHand");
-            // playerHand.innerHTML = "";
             for(let i = 0; i < drawData.data.cards.length; i++){
                 let img = document.createElement("img");
                 img.src = drawData.data.cards[i]["image"];
-                playerHand.appendChild(img);
+                hand.appendChild(img);
+            }
+
+            if(hand.id === "playerHand"){
+                let hitBtn = document.createElement("button");
+                let stayBtn = document.createElement("button");
+                hitBtn.innerText = "HIT";
+                stayBtn.innerText = "STAY";
+                hand.appendChild(hitBtn);
+                hand.appendChild(stayBtn);
             }
         } catch (err) {
             console.log(err);
         }
     }
 
-    
+    const hit = async(id) => {
+        try{
+
+        } catch {
+
+        }
+    }
+
+    let playerHand = document.querySelector("#playerHand");
+    let computerHand = document.querySelector("#dealerHand");
     startBtn.addEventListener("click", () => {
         let startBtn = document.querySelector("#startBtn");
         startBtn.style.display = "none";
-        drawCards(deck_id);
-        
+        drawCards(deck_id, playerHand);
+        drawCards(deck_id, computerHand);
     })
 
     fetchDeck();
