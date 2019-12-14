@@ -34,11 +34,14 @@ document.addEventListener("DOMContentLoaded", () => {
                 let stayBtn = document.createElement("button");
                 hitBtn.innerText = "HIT";
                 stayBtn.innerText = "STAY";
+                hitBtn.id = "hitBtn";
+                stayBtn.id = "stayBtn";
                 hand.appendChild(hitBtn);
                 hand.appendChild(stayBtn);
             }
 
             hand.appendChild(h5)
+            return score;
 
         } catch (err) {
             console.log(err);
@@ -47,12 +50,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let playerHand = document.querySelector("#playerHand");
     let dealerHand = document.querySelector("#dealerHand");
-    startBtn.addEventListener("click", () => {
+    startBtn.addEventListener("click", async () => {
         let startBtn = document.querySelector("#startBtn");
         startBtn.style.display = "none";
-        drawCards(deck_id, playerHand, playerScore);
+        playerScore = await drawCards(deck_id, playerHand, playerScore);
+        dealerScore = await drawCards(deck_id, dealerHand, dealerScore);
         console.log(playerScore);
-        drawCards(deck_id, dealerHand, dealerScore);
         console.log(dealerScore);
     })
 
