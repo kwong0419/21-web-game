@@ -1,10 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
 
     let deck_id;
-
+    
     let playerScore = 0;
     let dealerScore = 0;
-
+    let buttonsContainer = document.querySelector("#playerButtons");
+    buttonsContainer.style.display = "none";
+    let playerHand = document.querySelector("#playerHand");
+    let dealerHand = document.querySelector("#dealerHand");
+    
     const fetchDeck = async () => {
         try {
             let res = await axios.get("https://deckofcardsapi.com/api/deck/new/");
@@ -15,66 +19,85 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
-    const drawCards = async(id, hand, score) => {
-        try {
+    const displayCards = (data, hand) => {
+        for(let i = 0; i < data.data.cards.length; i++){
+            let img = document.createElement("img");
+            img.src = data.data.cards[i]["image"];
+            hand.appendChild(img);
+        }
+    }
 
+    const checkPlayer = (hand, score) => {
+        let pScore = document.querySelector("#playerScore");
+        let dScore = document.querySelector("#dealerScore");
+        if(hand.id === "playerHand"){               
+            buttonsContainer.style.display = "block";
+            pScore.innerText = `Score: ${score}`;
+        } else {
+            dScore.innerText = `Score: ${score}`;
+        }
+    }
+
+    const draw = async(id, hand, score) => {
+        try {
             let drawData = await axios.get(`https://deckofcardsapi.com/api/deck/${id}/draw/?count=2`);
             if(score !== 0){
                 drawData = await axios.get(`https://deckofcardsapi.com/api/deck/${id}/draw/?count=1`)
             }
             score = scoreHand(drawData.data.cards, score);
-
-            let h5 = document.createElement("h5");
-            h5.innerText = `Score: ${score}`;
-
-            for(let i = 0; i < drawData.data.cards.length; i++){
-                let img = document.createElement("img");
-                img.src = drawData.data.cards[i]["image"];
-                hand.appendChild(img);
+                     
+            let buttons = document.querySelector("#playerButtons");
+            let startBtn = document.querySelector("#startBtn");
+            if (score === 21){
+                console.log("BLACKJACK!!! You win!")
+                buttons.innerHTML = "";
+                let message = document.createElement("h1");
+                message.innerText = "BLACKJACK!!! You win!";
+                buttons.appendChild(message)
+                return;
+            } else if(score > 21){
+                console.log("BUSTED!!!! You lose!");
+                buttons.innerHTML = "";
+                let message = document.createElement("h1");
+                message.innerText = "BUSTED!!!! You lose!";
+                buttons.appendChild(message);
+                startBtn.style.display = "block";
+                return;
+            } else {
+                
             }
 
-            if(hand.id === "playerHand"){
-                let buttonsContainer = document.querySelector("#playerButtons");
-                buttonsContainer.innerHTML = "";
-                let hitBtn = document.createElement("button");
-                let stayBtn = document.createElement("button");
-                hitBtn.innerText = "HIT";
-                stayBtn.innerText = "STAY";
-                hitBtn.id = "hitBtn";
-                stayBtn.id = "stayBtn";
-                buttonsContainer.appendChild(hitBtn);
-                buttonsContainer.appendChild(stayBtn);
-            }
+            displayCards(drawData, hand);
+            checkPlayer(hand, score);
 
-            hand.appendChild(h5)
             return score;
         } catch (err) {
             console.log(err);
         }
     }
 
-    let playerHand = document.querySelector("#playerHand");
-    let dealerHand = document.querySelector("#dealerHand");
     startBtn.addEventListener("click", async () => {
         let startBtn = document.querySelector("#startBtn");
         startBtn.style.display = "none";
-        playerScore = await drawCards(deck_id, playerHand, playerScore);
-        dealerScore = await drawCards(deck_id, dealerHand, dealerScore);
-        
-        if (playerScore <= 21){
-            let hit = document.querySelector("#hitBtn");
-            hit.addEventListener("click", () => {
-                playerScore = drawCards(deck_id, playerHand, playerScore);
-            })
-        }
-            
+        playerScore = await draw(deck_id, playerHand, playerScore);
+        dealerScore = await draw(deck_id, dealerHand, dealerScore);
+    })
+
+    let hit = document.querySelector("#hitBtn");
+    hit.addEventListener("click", async () => {
+        playerScore = await draw(deck_id, playerHand, playerScore);
+    })
+
+    let stay = document.querySelector("#stayBtn");
+    stay.addEventListener("click", () => {
+
     })
         
     fetchDeck();
 
 })
 
-function scoreHand(cards, score) {
+const scoreHand = (cards, score) => {
     let numAces = 0;
     cards.forEach(card => {
         if(card.value === 'ACE') {
