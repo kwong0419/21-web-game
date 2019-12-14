@@ -2,8 +2,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     let deck_id;
 
-    let playerScore;
-    let dealerScore;
+    let playerScore = 0;
+    let dealerScore = 0;
 
     const fetchDeck = async () => {
         try {
@@ -17,9 +17,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     const drawCards = async(id, hand, score) => {
         try {
+
             let drawData = await axios.get(`https://deckofcardsapi.com/api/deck/${id}/draw/?count=2`);
-            score = 0;
+            if(score !== 0){
+                drawData = await axios.get(`https://deckofcardsapi.com/api/deck/${id}/draw/?count=1`)
+            }
             score = scoreHand(drawData.data.cards, score);
+
             let h5 = document.createElement("h5");
             h5.innerText = `Score: ${score}`;
 
@@ -30,19 +34,20 @@ document.addEventListener("DOMContentLoaded", () => {
             }
 
             if(hand.id === "playerHand"){
+                let buttonsContainer = document.querySelector("#playerButtons");
+                buttonsContainer.innerHTML = "";
                 let hitBtn = document.createElement("button");
                 let stayBtn = document.createElement("button");
                 hitBtn.innerText = "HIT";
                 stayBtn.innerText = "STAY";
                 hitBtn.id = "hitBtn";
                 stayBtn.id = "stayBtn";
-                hand.appendChild(hitBtn);
-                hand.appendChild(stayBtn);
+                buttonsContainer.appendChild(hitBtn);
+                buttonsContainer.appendChild(stayBtn);
             }
 
             hand.appendChild(h5)
             return score;
-
         } catch (err) {
             console.log(err);
         }
@@ -55,14 +60,19 @@ document.addEventListener("DOMContentLoaded", () => {
         startBtn.style.display = "none";
         playerScore = await drawCards(deck_id, playerHand, playerScore);
         dealerScore = await drawCards(deck_id, dealerHand, dealerScore);
-        console.log(playerScore);
-        console.log(dealerScore);
+        
+        if (playerScore <= 21){
+            let hit = document.querySelector("#hitBtn");
+            hit.addEventListener("click", () => {
+                playerScore = drawCards(deck_id, playerHand, playerScore);
+            })
+        }
+            
     })
-
+        
     fetchDeck();
 
 })
-
 
 function scoreHand(cards, score) {
     let numAces = 0;
