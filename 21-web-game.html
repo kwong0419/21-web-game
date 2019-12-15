@@ -4,22 +4,29 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Simple 21 Cardgame</title>
+    <title>BLACKJACK</title>
+    <link rel="stylesheet" type="text/css" href="./21-web-game.css">
     <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
     <script src="21-web-game.js"></script>
 </head>
 <body>
-    <h1>Simple 21</h1>
+    <h1>BLACKJACK</h1>
     <div id="game">
         <button id="startBtn">Start Game</button>        
-        <div id="playerHand"><h4>Player's Hand</h4></div>
-        <h5 id="playerScore"></h5>
+        <div id="playerHand">
+            <h4>Player's Hand</h4>
+            <div class="reset" id="playerImgs"></div>
+        </div>
+        <h5 class="reset" id="playerScore"></h5>
         <div id="playerButtons">
             <button id="hitBtn">HIT</button>
             <button id="stayBtn">STAY</button>
         </div>
-        <div id="dealerHand"><h4>Dealer's Hand</h4></div>
-        <h5 id="dealerScore"></h5>
+        <div id="dealerHand">
+            <h4>Dealer's Hand</h4>
+            <div class="reset" id="dealerImgs"></div>
+        </div>
+        <h5 class="reset" id="dealerScore"></h5>
     </div>
 </body>
 </html>
