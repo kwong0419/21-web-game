@@ -9,6 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let playerHand = document.querySelector("#playerHand");
     let dealerHand = document.querySelector("#dealerHand");
     
+    let startBtn = document.querySelector("#startBtn");
     
     const fetchDeck = async () => {
         try {
@@ -20,6 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+
     const displayCards = (data, hand) => {
         let val = ""
         hand.id === "playerHand" ? val = "playerImgs" : val = "dealerImgs"
@@ -30,6 +32,7 @@ document.addEventListener("DOMContentLoaded", () => {
             imgDiv.appendChild(img);
         }
     }
+
 
     const checkPlayerScore = (hand, score) => {
         let pScore = document.querySelector("#playerScore");
@@ -44,10 +47,11 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+
     const endGame = async () => {
         let playerScore = document.querySelector("#playerScore").value;
         let dealerScore = document.querySelector("#dealerScore").value;
-        let message = document.createElement("h1");
+        let message = document.createElement("h2");
         let buttons = document.querySelector("#playerButtons");
         buttons.innerHTML = "";
         while(dealerScore < 17){
@@ -66,29 +70,25 @@ document.addEventListener("DOMContentLoaded", () => {
         buttons.appendChild(message);
     }
 
+
     const isGameOver = (score, hand) => {
         let buttons = document.querySelector("#playerButtons");
-        let startBtn = document.querySelector("#startBtn");
+        let message = document.createElement("h2");
         if (score === 21 && hand.id === "playerHand" ){
             buttons.innerHTML = "";
-            let message = document.createElement("h1");
             message.innerText = "BLACKJACK!!! You win!";
             buttons.appendChild(message)
-            startBtn.innerText = "start a new game?"
-            startBtn.style.display = "block";
             return true;
         } else if(score > 21 && hand.id === "playerHand"){
             buttons.innerHTML = "";
-            let message = document.createElement("h1");
             message.innerText = "BUSTED!!!! You lose!";
             buttons.appendChild(message);
-            startBtn.innerText = "start a new game?"
-            startBtn.style.display = "block";
             return true;
         } else {
             return false;
         }
     }
+
 
     const draw = async(id, hand, score) => {
         try {
@@ -100,38 +100,37 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
             score = scoreHand(drawData.data.cards, score);
-            
             displayCards(drawData, hand);
             checkPlayerScore(hand, score);
             if(isGameOver(score, hand)){
                 return score;
             }
-            
             return score;
         } catch (err) {
             console.log(err);
         }
     }
 
-    // const resetGame = (playerScore, dealerScore) => {
-    //     let reset = document.querySelectorAll(".reset");
-    //     reset.forEach(node => {
-    //         node.innerHTML = ""
-    //     })
-    //     playerScore = 0;
-    //     dealerScore = 0;
-    // }
 
-    startBtn.addEventListener("click", async () => {
-        let startBtn = document.querySelector("#startBtn");
-        startBtn.style.display = "none";
-        // if(playerScore >  0 && dealerScore > 0){
-        //     resetGame(playerScore, dealerScore);
-        // } else {
+    const newGame = () => {
+        playerScore = 0;
+        dealerScore = 0;
+        let message = document.querySelector("h2");
+        if(message){
+            message.parentNode.removeChild(message);
+        }
+        let reset = document.querySelectorAll(".reset");
+        reset.forEach(node => {
+            node.innerHTML = "";
+        })
+        startBtn.addEventListener("click", async () => {
+            let startBtn = document.querySelector("#startBtn");
+            startBtn.style.display = "none";
+    
             playerScore = await draw(deck_id, playerHand, playerScore);
             dealerScore = await draw(deck_id, dealerHand, dealerScore);
-        // }
-    })
+        })
+    }
 
     let hit = document.querySelector("#hitBtn");
     hit.addEventListener("click", async () => {
@@ -144,29 +143,32 @@ document.addEventListener("DOMContentLoaded", () => {
     })
         
     fetchDeck();
+    newGame();
 
+
+
+    const scoreHand = (cards, score) => {
+        let numAces = 0;
+        cards.forEach(card => {
+            if(card.value === 'ACE') {
+                numAces++;
+            } else if (card.value === 'KING' || card.value === 'QUEEN' || card.value === 'JACK'){
+                score += 10;
+            } else if (Number(card.value)){
+                score += Number(card.value);
+            }
+        })
+        for(let i = numAces; i > 0; i--){
+            if(score > (11-i)){
+                score += 1;
+            } else {
+                score += 11;
+            }
+        }
+        return score;
+    } 
+           
 })
 
-
-const scoreHand = (cards, score) => {
-    let numAces = 0;
-    cards.forEach(card => {
-        if(card.value === 'ACE') {
-            numAces++;
-        } else if (card.value === 'KING' || card.value === 'QUEEN' || card.value === 'JACK'){
-            score += 10;
-        } else if (Number(card.value)){
-            score += Number(card.value);
-        }
-    })
-    for(let i = numAces; i > 0; i--){
-        if(score > (11-i)){
-            score += 1;
-        } else {
-            score += 11;
-        }
-    }
-    return score;
-}    
 
 
