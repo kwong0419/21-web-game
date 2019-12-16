@@ -113,6 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
     const newGame = () => {
+        startBtn.style.display = "block";
         playerScore = 0;
         dealerScore = 0;
         let message = document.querySelector("h2");
@@ -146,7 +147,6 @@ document.addEventListener("DOMContentLoaded", () => {
     newGame();
 
 
-
     const scoreHand = (cards, score) => {
         let numAces = 0;
         cards.forEach(card => {
@@ -167,7 +167,7 @@ document.addEventListener("DOMContentLoaded", () => {
         }
         return score;
     } 
-           
+
 })
 
 
