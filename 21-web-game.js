@@ -53,7 +53,7 @@ document.addEventListener("DOMContentLoaded", () => {
         while(dealerScore < 17){
             dealerScore = await draw(deck_id, dealerHand, dealerScore);
         }
-        if( dealerScore > 21) {
+        if(dealerScore > 21) {
             message.innerText = "Dealer busts!! You win!"
         }
         else if(dealerScore === playerScore) {
@@ -66,10 +66,10 @@ document.addEventListener("DOMContentLoaded", () => {
         buttons.appendChild(message);
     }
 
-    const isGameOver = (score) => {
+    const isGameOver = (score, hand) => {
         let buttons = document.querySelector("#playerButtons");
         let startBtn = document.querySelector("#startBtn");
-        if (score === 21 ){
+        if (score === 21 && hand.id === "playerHand" ){
             buttons.innerHTML = "";
             let message = document.createElement("h1");
             message.innerText = "BLACKJACK!!! You win!";
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", () => {
             startBtn.innerText = "start a new game?"
             startBtn.style.display = "block";
             return true;
-        } else if(score > 21){
+        } else if(score > 21 && hand.id === "playerHand"){
             buttons.innerHTML = "";
             let message = document.createElement("h1");
             message.innerText = "BUSTED!!!! You lose!";
@@ -93,10 +93,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const draw = async(id, hand, score) => {
         try {
             let drawData = await axios.get(`https://deckofcardsapi.com/api/deck/${id}/draw/?count=2`); 
-            
             if(score !== 0){
                 drawData = await axios.get(`https://deckofcardsapi.com/api/deck/${id}/draw/?count=1`);
-                if(isGameOver(score)){
+                if(isGameOver(score, hand)){
                     return score;
                 }
             }
@@ -104,7 +103,7 @@ document.addEventListener("DOMContentLoaded", () => {
             
             displayCards(drawData, hand);
             checkPlayerScore(hand, score);
-            if(isGameOver(score)){
+            if(isGameOver(score, hand)){
                 return score;
             }
             
@@ -138,7 +137,7 @@ document.addEventListener("DOMContentLoaded", () => {
     hit.addEventListener("click", async () => {
         playerScore = await draw(deck_id, playerHand, playerScore);
     })
-    
+
     let stay = document.querySelector("#stayBtn");
     stay.addEventListener("click", () => {
         endGame();
