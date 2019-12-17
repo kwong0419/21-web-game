@@ -1,5 +1,5 @@
 document.addEventListener("DOMContentLoaded", () => {
-
+    
     let deck_id;
     
     let playerScore = 0;
@@ -8,7 +8,8 @@ document.addEventListener("DOMContentLoaded", () => {
     buttonsContainer.style.display = "none";
     let playerHand = document.querySelector("#playerHand");
     let dealerHand = document.querySelector("#dealerHand");
-    
+    let urls = [];
+
     let startBtn = document.querySelector("#startBtn");
     
     const fetchDeck = async () => {
@@ -21,18 +22,47 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     }
 
+    const displayDealerCards = (data) => {
+        let val = document.querySelector("#dealerImgs");
+        val.innerHTML = "";
+        if(dealerScore === 0){
+            for (let i = 0; i < data.data.cards.length; i++){
+                urls.push(data.data.cards[i]["image"]);
+            }
+            let img = document.createElement("img");
+            img.src = data.data.cards[0]["image"];
+            let faceDown = document.createElement("img");
+            faceDown.src = "https://raw.githubusercontent.com/nk1tz/vanilla-js-blackjack/master/card.png";
+            val.appendChild(img);
+            val.appendChild(faceDown);
+        } else {
+            urls.forEach(card => {
+                let img = document.createElement("img");
+                img.src = card;
+                val.appendChild(img);
+            })
+            for(let i = 0; i < data.data.cards.length; i++){
+                let draw = document.createElement("img");
+                draw.src = data.data.cards[i]["image"];
+                val.appendChild(draw);
+            }
+        }
+    }
 
     const displayCards = (data, hand) => {
         let val = ""
         hand.id === "playerHand" ? val = "playerImgs" : val = "dealerImgs"
-        let imgDiv = document.querySelector("#" + val);
-        for(let i = 0; i < data.data.cards.length; i++){
-            let img = document.createElement("img");
-            img.src = data.data.cards[i]["image"];
-            imgDiv.appendChild(img);
+        let imgDiv = document.querySelector("#" + val)
+        if(val === "dealerImgs"){
+            displayDealerCards(data, val);
+        } else {
+            for(let i = 0; i < data.data.cards.length; i++){
+                let img = document.createElement("img");
+                img.src = data.data.cards[i]["image"];
+                imgDiv.appendChild(img);
+            }
         }
     }
-
 
     const checkPlayerScore = (hand, score) => {
         let pScore = document.querySelector("#playerScore");
@@ -44,9 +74,9 @@ document.addEventListener("DOMContentLoaded", () => {
         } else {
             dScore.innerText = `Score: ${score}`;
             dScore.value = score;
+            dScore.style.display = "none";
         }
     }
-
 
     const endGame = async () => {
         let playerScore = document.querySelector("#playerScore").value;
@@ -71,6 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
             message.innerText = "Dealer beats the player! You lose!";
             reload();
         }
+        document.querySelector("#dealerScore").style.display = "block";
         buttons.appendChild(message);
     }
 
@@ -142,9 +173,6 @@ document.addEventListener("DOMContentLoaded", () => {
     stay.addEventListener("click", () => {
         endGame();
     })
-        
-    fetchDeck();
-
 
     const scoreHand = (cards, score) => {
         let numAces = 0;
@@ -165,7 +193,9 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
         return score;
-    } 
+    }
+
+    fetchDeck();
 
 })
 
